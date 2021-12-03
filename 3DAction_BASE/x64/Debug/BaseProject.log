@@ -1,2 +1,7 @@
-﻿  Player.cpp
-  BaseProject.vcxproj -> D:\Users\1916003\Desktop\新しいフォルダー (5)\3DAction_BASE\x64\Debug\BaseProject.exe
+﻿  GravityManager.cpp
+  Player.cpp
+  Stage.cpp
+  WarpStar.cpp
+  GameScene.cpp
+  コードを生成中...
+  BaseProject.vcxproj -> D:\Users\1916003\Desktop\GameAr\GameAction\3DAction_BASE\x64\Debug\BaseProject.exe

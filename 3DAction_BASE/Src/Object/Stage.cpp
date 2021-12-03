@@ -100,7 +100,8 @@ void Stage::ChangeStage(NAME type)
 	mActivePlanet = GetPlanet(mActiveName);
 
 	// ステージの当たり判定をプレイヤーに設定
-
+	mPlayer->ClearCollider();
+	mPlayer->AddCollider(mActivePlanet->GetTransform()->collider);
 
 	// 重力制御に惑星を渡す
 	mSceneManager->GetGravityManager()->ChangeActivePlanet(mActivePlanet);

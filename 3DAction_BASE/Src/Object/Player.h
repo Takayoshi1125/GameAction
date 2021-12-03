@@ -56,10 +56,16 @@ public:
 	void ProcessMove(void);
 	//回転
 	void SetGoalRotate(double rad);
-
 	void Rotate(void);
 
+	//重力の強さ計算
+	void GalcGravityPow(void);
+
 	Transform* GetTransform(void);
+
+	//衝突判定に用いられるコライダ
+	void AddCollider(Collider* collider);
+	void ClearCollider(void);
 
 private:
 
@@ -82,15 +88,29 @@ private:
 	//移動量
 	VECTOR mMovePow;
 	//移動後の座標
-	VECTOR mMovePos;
+	VECTOR mMovedPos;
 
 	//回転
 	Quaternion mPlayerRotY;
 	Quaternion mGoalQuaRotY;
 	float mStepRotTime;
 
+	//ジャンプ量
+	VECTOR mJumpPow;
+
+	//衝突判定に用いられるコライダ
+	std::vector<Collider*>mColliders;
+
+	VECTOR mGravHitDown;
+	VECTOR mGravHitUp;
+
+
 	// 状態遷移
 	void ChangeState(STATE state);
 
+
+	//衝突判定
+	void Collision(void);
+	void CollisionGravity(void);
 };
 

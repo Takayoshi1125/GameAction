@@ -91,10 +91,10 @@ void Player::UpdatePlay(void)
 	ProcessMove();
 
 	//
-	mMovePos = VAdd(mTransform.pos, mMovePow);
+	mMovedPos = VAdd(mTransform.pos, mMovePow);
 
 	//移動
-	mTransform.pos = mMovePos;
+	mTransform.pos = mMovedPos;
 
 	//回転をTransformに反映
 	mTransform.quaRot = mGravityManager->GetTransform()->quaRot; 
@@ -133,7 +133,7 @@ void Player::DrawDebug(void)
 		v.x, v.y, v.z
 	);
 	//-------------------------------------------------------
-
+	DrawLine3D(mGravHitUp, mGravHitDown, 0x000000);
 }
 
 void Player::Release(void)
@@ -234,9 +234,34 @@ void Player::Rotate(void)
 
 }
 
+void Player::GalcGravityPow(void)
+{
+	//
+
+	//mJumpPow
+
+	VECTOR dirGravity = mGravityManager->GetDirUpGravity();
+	//
+	float gravityPow = mGravityManager->GetPower();
+
+	VECTOR gravity = VScale(dirGravity, gravityPow);
+	mJumpPow = VAdd(mJumpPow, gravity);
+
+}
+
 Transform* Player::GetTransform(void)
 {
 	return &mTransform;
+}
+
+void Player::AddCollider(Collider* collider)
+{
+	mColliders.push_back(collider);
+}
+
+void Player::ClearCollider(void)
+{
+	mColliders.clear();
 }
 
 void Player::ChangeState(STATE state)
@@ -261,4 +286,30 @@ void Player::ChangeState(STATE state)
 		break;
 	}
 
+}
+
+void Player::Collision(void)
+{
+	mMovedPos = VAdd(mTransform.pos, mMovePow);
+
+
+	CollisionGravity();
+
+	mTransform.pos = mMovedPos;
+
+}
+
+void Player::CollisionGravity(void)
+{
+	//ジャンプ量を移動座標に加算
+	mMovedPos = VAdd(mMovedPos, mJumpPow);
+
+	auto hit = MV1CollCheck_Line(mTransform.modelId, -1, mGravHitUp, mGravHitDown); 
+	if (hit.HitFlag > 0) {// 衝突地点から、少し上に移動
+		mMovedPos = VAdd(hit.HitPosition, VScale(mGravityManager->GetDirUpGravity(), 2.0f));
+						  // ジャンプリセット
+		mJumpPow = AsoUtility::VECTOR_ZERO;}
+
+
+	mTransform.pos = mMovedPos;
 }
