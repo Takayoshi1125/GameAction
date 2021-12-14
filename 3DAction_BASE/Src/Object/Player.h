@@ -18,6 +18,12 @@ public:
 	//回転完了までの時間
 	static constexpr float TIME_ROT = 1.0f;
 
+	//ジャンプ力
+	static constexpr float POW_JUMP = 35.0f;
+
+	//ジャンプ受付時間
+	static constexpr float TIME_JUMP_IN = 0.5f;
+
 	// 状態
 	enum class STATE
 	{
@@ -49,11 +55,14 @@ public:
 	void Update(void);
 	void UpdatePlay(void);
 	void Draw(void);
+	void DrawShadow(void);
 	void DrawDebug(void);
 	void Release(void);
 
 	//操作
 	void ProcessMove(void);
+	void ProcessJamp(void);
+
 	//回転
 	void SetGoalRotate(double rad);
 	void Rotate(void);
@@ -98,11 +107,19 @@ private:
 	//ジャンプ量
 	VECTOR mJumpPow;
 
+	bool mIsJump;
+
+	//ジャンプ受付時間
+	float mStepJump;
+
 	//衝突判定に用いられるコライダ
 	std::vector<Collider*>mColliders;
 
 	VECTOR mGravHitDown;
 	VECTOR mGravHitUp;
+
+	//丸形画像
+	int mImgShadow;
 
 
 	// 状態遷移
@@ -112,5 +129,8 @@ private:
 	//衝突判定
 	void Collision(void);
 	void CollisionGravity(void);
+	//着地モーション終了
+	bool IsEndLanding;
+
 };
 

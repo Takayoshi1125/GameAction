@@ -1,7 +1,6 @@
-﻿  GravityManager.cpp
-  Player.cpp
-  Stage.cpp
-  WarpStar.cpp
-  GameScene.cpp
-  コードを生成中...
+﻿  Player.cpp
+D:\Users\1916003\Desktop\GameAr\GameAction\3DAction_BASE\Src\Object\Player.cpp(193,27): warning C4244: '=': 'float' から 'BYTE' への変換です。データが失われる可能性があります。
+D:\Users\1916003\Desktop\GameAr\GameAction\3DAction_BASE\Src\Object\Player.cpp(196,27): warning C4244: '=': 'float' から 'BYTE' への変換です。データが失われる可能性があります。
+D:\Users\1916003\Desktop\GameAr\GameAction\3DAction_BASE\Src\Object\Player.cpp(199,27): warning C4244: '=': 'float' から 'BYTE' への変換です。データが失われる可能性があります。
+D:\Users\1916003\Desktop\GameAr\GameAction\3DAction_BASE\Src\Object\Player.cpp(137,9): warning C4101: 'j': ローカル変数は 1 度も使われていません。
   BaseProject.vcxproj -> D:\Users\1916003\Desktop\GameAr\GameAction\3DAction_BASE\x64\Debug\BaseProject.exe
