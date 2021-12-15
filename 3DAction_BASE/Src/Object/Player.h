@@ -68,7 +68,7 @@ public:
 	void Rotate(void);
 
 	//重力の強さ計算
-	void GalcGravityPow(void);
+	void CalcGravityPow(void);
 
 	Transform* GetTransform(void);
 
@@ -130,7 +130,7 @@ private:
 	void Collision(void);
 	void CollisionGravity(void);
 	//着地モーション終了
-	bool IsEndLanding;
+	bool IsEndLanding(void);
 
 };
 

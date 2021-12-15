@@ -94,22 +94,14 @@ void Player::Update(void)
 
 void Player::UpdatePlay(void)
 {
-	mIsJump = false;
-
 	ProcessMove();
 	ProcessJamp();
 
-	//GalcGravityPow();
+	CalcGravityPow();
 	
-
 	Collision();
 
-	//
-	mMovedPos = VAdd(mTransform.pos, mMovePow);
-
-	//移動
-	mTransform.pos = mMovedPos;
-
+	
 	//回転をTransformに反映
 	mTransform.quaRot = mGravityManager->GetTransform()->quaRot; 
 	mTransform.quaRot = mTransform.quaRot.Mult(mPlayerRotY);
@@ -134,7 +126,7 @@ void Player::DrawShadow(void)
 	float PLAYER_SHADOW_HEIGHT=300.0f;
 	float PLAYER_SHADOW_SIZE=30.0f;
 
-	int i, j;
+	int i;
 	MV1_COLL_RESULT_POLY_DIM HitResDim;
 	MV1_COLL_RESULT_POLY* HitRes;
 	VERTEX3D Vertex[3];
@@ -286,17 +278,20 @@ void Player::ProcessMove(void)
 	rotRad = AsoUtility::Deg2RadD(90.0);
 	}
 
-	if (!AsoUtility::EqualsVZero(dir))
+	if (!AsoUtility::EqualsVZero(dir)&&(mIsJump||IsEndLanding()))
 	{
 		//mMoveDir = VAdd(mMoveDir, dir);
 
-		if (mSpeed == SPEED_MOVE)
+		if (!mIsJump&&IsEndLanding())
 		{
-			mAnimationController->Play((int)ANIM_TYPE::RUN);
-		}
-		else
-		{
-			mAnimationController->Play((int)ANIM_TYPE::FAST_RUN);
+			if (mSpeed == SPEED_MOVE)
+			{
+				mAnimationController->Play((int)ANIM_TYPE::RUN);
+			}
+			else
+			{
+				mAnimationController->Play((int)ANIM_TYPE::FAST_RUN);
+			}
 		}
 		
 		mMovePow = VScale(dir, mSpeed);
@@ -304,12 +299,14 @@ void Player::ProcessMove(void)
 		//mGorlQuaRot
 		SetGoalRotate(rotRad);
 
-		
-
 	}
 	else
 	{
-		mAnimationController->Play((int)ANIM_TYPE::IDLE);
+		if (!mIsJump&&IsEndLanding())
+		{
+			mAnimationController->Play((int)ANIM_TYPE::IDLE);
+		}
+		
 	}
 
 	//移動方向に応じた回転
@@ -322,10 +319,28 @@ void Player::ProcessJamp(void)
 {
 
 	//ジャンプボタン押されたらジャンプ
-	if (CheckHitKey(KEY_INPUT_BACKSLASH))
+	bool isHitKey = CheckHitKey(KEY_INPUT_BACKSLASH);
+	if (isHitKey&&(mIsJump||IsEndLanding()))
 	{
+		if (mIsJump)
+		{
+			//ジャンプアニメーション
+	//mAnimationController->Play((int)ANIM_TYPE::JUMP);
+	//mAnimationController->Play((int)ANIM_TYPE::JUMP,false);
+	/*mAnimationController->Play(
+		(int)ANIM_TYPE::JUMP,false,13.0f,25.0f);*/
 
-		mJumpPow = VScale(mGravityManager->GetDirUpGravity(),POW_JUMP);
+		//切り取りつつ再生が終わったら
+			mAnimationController->Play(
+				(int)ANIM_TYPE::JUMP, true, 13.0f, 25.0f);
+			mAnimationController->SetEndLoop(23.0f, 25.0f, 5.0f);
+		}
+
+		mStepJump += mSceneManager->GetDeltaTime();
+		if (mStepJump < TIME_JUMP_IN)
+		{
+			mJumpPow = VScale(mGravityManager->GetDirUpGravity(), POW_JUMP);
+		}
 		mIsJump = true;
 	}
 	
@@ -356,7 +371,7 @@ void Player::Rotate(void)
 
 }
 
-void Player::GalcGravityPow(void)
+void Player::CalcGravityPow(void)
 {
 	VECTOR dirGravity = mGravityManager->GetDirUpGravity();
 	//
@@ -425,21 +440,63 @@ void Player::Collision(void)
 
 void Player::CollisionGravity(void)
 {
-	/*float checkPow = 10.0f; 
-	mGravHitUp = VAdd(mMovedPos, VScale(mGravityManager->GetDirUpGravity(), mGravityManager->GetPower()));
-	mGravHitUp = VAdd(mGravHitUp, VScale(mGravityManager->GetDirUpGravity(), checkPow * 2.0f)); 
-	mGravHitDown = VAdd(mMovedPos, VScale(mGravityManager->GetDirGravity(), checkPow));*/
-
-
+	
 	//ジャンプ量を移動座標に加算
 	mMovedPos = VAdd(mMovedPos, mJumpPow);
 
-	auto hit = MV1CollCheck_Line(mTransform.modelId, -1, mGravHitUp, mGravHitDown); 
-	if (hit.HitFlag > 0) {// 衝突地点から、少し上に移動
-		mMovedPos = VAdd(hit.HitPosition, VScale(mGravityManager->GetDirUpGravity(), 2.0f));
-						  // ジャンプリセット
-		mJumpPow = AsoUtility::VECTOR_ZERO;}
+	VECTOR dirGravity =
+		mGravityManager->GetDirGravity();
 
+	VECTOR dirUpGravity =
+		mGravityManager->GetDirUpGravity();
 
-	mTransform.pos = mMovedPos;
+	float gravityPow =
+		mGravityManager->GetPower();
+
+	float checkPow = 10.0f;
+	mGravHitUp = 
+		VAdd(mMovedPos, VScale(dirUpGravity, gravityPow));
+	mGravHitUp = 
+		VAdd(mGravHitUp, VScale(dirUpGravity, checkPow * 2.0f));
+	mGravHitDown = 
+		VAdd(mMovedPos, VScale(dirGravity, checkPow));
+
+	for (auto c : mColliders)
+	{
+		auto hit = 
+			MV1CollCheck_Line(
+				c->mModelId, -1, mGravHitUp, mGravHitDown);
+		if (hit.HitFlag > 0)
+		{// 衝突地点から、少し上に移動
+			mMovedPos =
+				VAdd(hit.HitPosition,
+					VScale(dirUpGravity, 2.0f));
+			// ジャンプリセット
+			mJumpPow = AsoUtility::VECTOR_ZERO;
+			mStepJump = 0.0f;
+
+			if (mIsJump)
+			{
+				mAnimationController->Play((int)ANIM_TYPE::JUMP, false,
+					29.0f, 45.0f, false, true);
+			}
+			mIsJump = false;
+		}
+	}
+
+}
+
+bool Player::IsEndLanding(void)
+{
+	bool ret = true;
+	if (mAnimationController->GetPlayType() != (int)ANIM_TYPE::JUMP)
+	{
+		return ret;
+	}
+	if (mAnimationController->IsEnd())
+	{
+		return ret;
+	}
+
+	return false;
 }
