@@ -41,6 +41,10 @@ void Player::Init(void)
 	mStepJump = 0.0f;
 	mJumpPow = AsoUtility::VECTOR_ZERO;
 
+	mCapsule = new Capsule(&mTransform);
+	mCapsule->SetRelativePosTop({0.0f,110.0f,0.0f});
+	mCapsule->SetRelativePosDown({ 0.0f,0.0f,0.0f});
+
 	// アニメーションの設定
 	InitAnimation();
 
@@ -97,7 +101,7 @@ void Player::UpdatePlay(void)
 	ProcessMove();
 	ProcessJamp();
 
-	CalcGravityPow();
+	//CalcGravityPow();
 	
 	Collision();
 
@@ -235,10 +239,15 @@ void Player::DrawDebug(void)
 	);
 	//-------------------------------------------------------
 	DrawLine3D(mGravHitUp, mGravHitDown, 0x000000);
+
+	//カプセルコライダ
+	mCapsule->Draw();
+
 }
 
 void Player::Release(void)
 {
+	delete mCapsule;
 }
 
 void Player::ProcessMove(void)
@@ -432,9 +441,59 @@ void Player::Collision(void)
 {
 	mMovedPos = VAdd(mTransform.pos, mMovePow);
 
+	CollisionCapsule();
+
 	CollisionGravity();
 
 	mTransform.pos = mMovedPos;
+
+}
+
+void Player::CollisionCapsule(void)
+{
+	//カプセルを移動後座標に移動させる
+	Transform trans = Transform(&mTransform);
+	trans.pos = mMovedPos;
+	trans.Update();
+	Capsule cap = mCapsule->Copy(&trans);
+
+	//カプセルとの衝突
+	for (auto c : mColliders)
+	{
+		auto hits = MV1CollCheck_Capsule(
+			c->mModelId, -1,
+			cap.GetPosDown(), cap.GetPosTop(), cap.GetRadius()
+		);
+
+		for (int i = 0; i < hits.HitNum; i++)
+		{
+			auto hit = hits.Dim[i];
+
+			for (int tryCnt = 0; tryCnt < 10; tryCnt++)
+			{
+				int pHit = HitCheck_Capsule_Triangle(
+					cap.GetPosDown(), cap.GetPosTop(), cap.GetRadius(),
+					hit.Position[0], hit.Position[1], hit.Position[2]
+				);
+
+				if (pHit)
+				{
+					mMovedPos = VAdd(mMovedPos, VScale(hit.Normal, 1.0f));
+
+					//カプセル移動
+					trans.pos = mMovedPos;
+					trans.Update();
+					cap = mCapsule->Copy(&trans);
+					continue;
+
+				}
+				break;
+			}
+
+		}
+		MV1CollResultPolyDimTerminate(hits);
+	}
+
 
 }
 

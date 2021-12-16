@@ -1,5 +1,5 @@
 ﻿  Player.cpp
-D:\Users\1916003\Desktop\GameAr\GameAction\3DAction_BASE\Src\Object\Player.cpp(185,27): warning C4244: '=': 'float' から 'BYTE' への変換です。データが失われる可能性があります。
-D:\Users\1916003\Desktop\GameAr\GameAction\3DAction_BASE\Src\Object\Player.cpp(188,27): warning C4244: '=': 'float' から 'BYTE' への変換です。データが失われる可能性があります。
-D:\Users\1916003\Desktop\GameAr\GameAction\3DAction_BASE\Src\Object\Player.cpp(191,27): warning C4244: '=': 'float' から 'BYTE' への変換です。データが失われる可能性があります。
+D:\Users\1916003\Desktop\GameAr\GameAction\3DAction_BASE\Src\Object\Player.cpp(189,27): warning C4244: '=': 'float' から 'BYTE' への変換です。データが失われる可能性があります。
+D:\Users\1916003\Desktop\GameAr\GameAction\3DAction_BASE\Src\Object\Player.cpp(192,27): warning C4244: '=': 'float' から 'BYTE' への変換です。データが失われる可能性があります。
+D:\Users\1916003\Desktop\GameAr\GameAction\3DAction_BASE\Src\Object\Player.cpp(195,27): warning C4244: '=': 'float' から 'BYTE' への変換です。データが失われる可能性があります。
   BaseProject.vcxproj -> D:\Users\1916003\Desktop\GameAr\GameAction\3DAction_BASE\x64\Debug\BaseProject.exe

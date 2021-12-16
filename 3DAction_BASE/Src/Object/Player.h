@@ -113,10 +113,12 @@ private:
 	float mStepJump;
 
 	//衝突判定に用いられるコライダ
+	Capsule* mCapsule;
 	std::vector<Collider*>mColliders;
 
 	VECTOR mGravHitDown;
 	VECTOR mGravHitUp;
+
 
 	//丸形画像
 	int mImgShadow;
@@ -128,6 +130,8 @@ private:
 
 	//衝突判定
 	void Collision(void);
+	void CollisionCapsule(void);
+
 	void CollisionGravity(void);
 	//着地モーション終了
 	bool IsEndLanding(void);
