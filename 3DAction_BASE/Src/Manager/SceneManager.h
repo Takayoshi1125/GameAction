@@ -22,6 +22,7 @@ public:
 
 	void Init(void);
 	void Init3D(void);
+	void InitEffekseer(void);
 	void Update(void);
 	void Release(void);
 

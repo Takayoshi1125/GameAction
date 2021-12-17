@@ -52,6 +52,8 @@ bool Application::Release(void)
 {
 	mSceneManager.Release();
 
+	Effkseer_End();
+
 	DxLib_End();
 
 	return true;

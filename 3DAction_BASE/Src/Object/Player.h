@@ -123,6 +123,12 @@ private:
 	//丸形画像
 	int mImgShadow;
 
+	//足煙
+	int mEffectSmoke;
+	int mStepFootSmoke;
+
+	//フレームごとの移動量
+	VECTOR mMoveDiff;
 
 	// 状態遷移
 	void ChangeState(STATE state);
@@ -135,6 +141,8 @@ private:
 	void CollisionGravity(void);
 	//着地モーション終了
 	bool IsEndLanding(void);
+
+	void EffectFootSmoke(void);
 
 };
 

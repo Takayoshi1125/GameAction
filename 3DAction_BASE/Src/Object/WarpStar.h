@@ -55,7 +55,20 @@ private:
 
 	STATE mState;
 
+	Quaternion mWarpQua;
+	VECTOR mWarpResarvePos;
+
+	//エフェクト
+	int mEffectRotParticle;
+	int mTime;
+
 	void ChangeState(STATE state);
+
+	//回転
+	void RotateZ(float speed);
+
+	//エフェクト発生
+	void PlayEffectRotParticle(void);
 
 };
 

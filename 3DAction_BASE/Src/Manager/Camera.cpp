@@ -1,5 +1,6 @@
 #include <math.h>
 #include <DxLib.h>
+#include<EffekseerForDXLib.h>
 #include "../Utility/AsoUtility.h"
 #include "../Manager/SceneManager.h"
 #include "../Manager/GravityManager.h"
@@ -57,6 +58,8 @@ void Camera::SetBeforeDraw(void)
 		mTargetPos,
 		mCameraUp
 	);
+
+	Effekseer_Sync3DSetting();
 
 }
 

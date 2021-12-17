@@ -1,5 +1,6 @@
 #include <chrono>
 #include <DxLib.h>
+#include<EffekseerForDXLib.h>
 #include "../Utility/AsoUtility.h"
 #include "../Common/Fader.h"
 #include "../Manager/ResourceManager.h"
@@ -14,6 +15,9 @@ void SceneManager::Init()
 
 	// 3D—p‚ÌÝ’è
 	Init3D();
+
+	//Effekseer‰Šú‰»
+	InitEffekseer();
 
 	mSceneID = SCENE_ID::TITLE;
 	mWaitSceneID = SCENE_ID::NONE;
@@ -64,6 +68,21 @@ void SceneManager::Init3D(void)
 	SetFogEnable(true);
 	SetFogColor(5, 5, 5);
 	SetFogStartEnd(10000.0f, 20000.0f);
+
+}
+
+void SceneManager::InitEffekseer(void)
+{
+	SetUseDirect3DVersion(DX_DIRECT3D_11);
+
+	if (Effekseer_Init(8000) == -1)
+	{
+		DxLib_End();
+	}
+
+	SetChangeScreenModeGraphicsSystemResetFlag(false);
+
+	Effekseer_SetGraphicsDeviceLostCallbackFunctions();
 
 }
 
@@ -125,9 +144,13 @@ void SceneManager::Update(void)
 	// ƒJƒƒ‰Ý’è
 	mCamera->SetBeforeDraw();
 
+	UpdateEffekseer3D();
+
 	// •`‰æ
 	mScene->Draw();
 	mCamera->Draw();
+
+	DrawEffekseer3D();
 
 	// ÅŒã
 	mFader->Draw();

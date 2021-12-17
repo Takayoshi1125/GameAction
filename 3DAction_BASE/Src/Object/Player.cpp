@@ -1,4 +1,5 @@
 #include <string>
+#include<EffekseerForDXLib.h>
 #include "../Utility/AsoUtility.h"
 #include "../Manager/SceneManager.h"
 #include "../Manager/ResourceManager.h"
@@ -36,6 +37,10 @@ void Player::Init(void)
 
 	//〇影画像の読み神
 	mImgShadow = LoadGraph("Data/Image/Shadow.png");
+
+	//足煙エフェクト
+	mEffectSmoke = mResourceManager->Load(
+		ResourceManager::SRC::FOOT_SMOKE).mHandleId;
 
 	mIsJump = false;
 	mStepJump = 0.0f;
@@ -101,7 +106,7 @@ void Player::UpdatePlay(void)
 	ProcessMove();
 	ProcessJamp();
 
-	//CalcGravityPow();
+	CalcGravityPow();
 	
 	Collision();
 
@@ -109,6 +114,10 @@ void Player::UpdatePlay(void)
 	//回転をTransformに反映
 	mTransform.quaRot = mGravityManager->GetTransform()->quaRot; 
 	mTransform.quaRot = mTransform.quaRot.Mult(mPlayerRotY);
+
+	//歩きエフェクト
+	EffectFootSmoke();
+
 }
 
 void Player::Draw(void)
@@ -353,6 +362,11 @@ void Player::ProcessJamp(void)
 		mIsJump = true;
 	}
 	
+	if (!isHitKey)
+	{
+		mStepJump = TIME_JUMP_IN;
+	}
+
 }
 
 void Player::SetGoalRotate(double rad)
@@ -445,6 +459,10 @@ void Player::Collision(void)
 
 	CollisionGravity();
 
+
+	//移動
+	
+	mMoveDiff = VSub(mMovedPos, mTransform.pos);
 	mTransform.pos = mMovedPos;
 
 }
@@ -558,4 +576,27 @@ bool Player::IsEndLanding(void)
 	}
 
 	return false;
+}
+
+void Player::EffectFootSmoke(void)
+{
+	int playeHandle = -1;
+
+	float len = AsoUtility::SqrMagnitude(mMoveDiff);
+	if (mIsJump == false)
+
+	{
+		if (mStepFootSmoke % 15 == 0 && len != 0.0f)
+		{
+			//エフェクト発生
+			playeHandle = PlayEffekseer3DEffect(mEffectSmoke);
+
+			SetScalePlayingEffekseer3DEffect(playeHandle, 5.0f, 5.0f, 5.0f);
+
+			SetPosPlayingEffekseer3DEffect(playeHandle, mTransform.pos.x, mTransform.pos.y, mTransform.pos.z);
+		}
+	}
+
+	mStepFootSmoke++;
+
 }
