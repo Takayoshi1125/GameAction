@@ -4,6 +4,7 @@
 #include "../Manager/SceneManager.h"
 #include "../Manager/ResourceManager.h"
 #include "Common/Transform.h"
+#include"Common/Capsule.h"
 #include "Player.h"
 #include "WarpStar.h"
 
@@ -67,10 +68,24 @@ void WarpStar::UpdateIdle(void)
 
 	PlayEffectRotParticle();
 
+
+	//キャラクターの位置とワープスターの位置
+	VECTOR vPos = mTransform.pos;
+	VECTOR cPos = mPlayer->GetCapsule()->GetCenter();
+
+	//キャラクターが範囲に入ったら準備Stateにする
+	VECTOR diff = VSub(cPos, vPos);
+	float dis = AsoUtility::SqrMagnitude(diff);
+	if (dis < RADIUS * RADIUS)
+	{
+		ChangeState(WarpStar::STATE::RESERVE);
+		return;
+	}
 }
 
 void WarpStar::UpdateReserve(void)
 {
+	//RotateZ
 }
 
 void WarpStar::UpdateMove(void)
@@ -100,6 +115,7 @@ void WarpStar::ChangeState(STATE state)
 	case WarpStar::STATE::IDLE:
 		break;
 	case WarpStar::STATE::RESERVE:
+		mPlayer->StartWarp(TIME_WARP_RESERVE,mWarpQua,mWarpResarvePos);
 		break;
 	case WarpStar::STATE::MOVE:
 		break;

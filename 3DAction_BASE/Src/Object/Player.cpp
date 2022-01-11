@@ -41,6 +41,13 @@ void Player::Init(void)
 	//足煙エフェクト
 	mEffectSmoke = mResourceManager->Load(
 		ResourceManager::SRC::FOOT_SMOKE).mHandleId;
+	
+	mEffectWarpOrbit = mResourceManager->Load(
+		ResourceManager::SRC::WARP_ORBIT).mHandleId;
+	
+	//モデルフレーム
+	mFrameLeftHand = MV1SearchFrame(mTransform.modelId, "mixamorig.LeftHand");
+
 
 	mIsJump = false;
 	mStepJump = 0.0f;
@@ -85,8 +92,10 @@ void Player::Update(void)
 		UpdatePlay();
 		break;
 	case Player::STATE::WARP_RESERVE:
+		UpdateWarpReserve();
 		break;
 	case Player::STATE::WARP_MOVE:
+		UpdateWarpMove();
 		break;
 	case Player::STATE::DEAD:
 		break;
@@ -427,6 +436,68 @@ void Player::ClearCollider(void)
 	mColliders.clear();
 }
 
+void Player::UpdateWarpReserve(void)
+{
+	mStepWarp -= mSceneManager->GetDeltaTime(); 
+	if (mStepWarp < 0.0f)
+	{
+		mTransform.quaRot = mWarpQua; mTransform.pos = mWarpReservePos;
+		ChangeState(STATE::WARP_MOVE); return;
+	}
+	else 
+	{
+		float t = 1.0f - (mStepWarp / mTimeWarp);
+		mTransform.quaRot = Quaternion::Slerp(mReserveStartQua, mWarpQua, t);
+		mTransform.pos = AsoUtility::Lerp(mReserveStartPos, mWarpReservePos, t);
+	}
+
+}
+
+void Player::UpdateWarpMove(void)
+{
+	VECTOR dir = mWarpQua.GetForward(); 
+	mTransform.pos = VAdd(mTransform.pos, VScale(dir, 30.0f));
+	Stage::NAME name = mGravityManager->GetActivePlanet()->GetName(); 
+	if (name != mPreWarpName) 
+	{ 
+		// エフェクト停止
+		StopOrbitEffect();
+	// 落下アニメーション
+		mAnimationController->Play( (int)ANIM_TYPE::JUMP, true, 13.0f, 25.0f); mAnimationController->SetEndLoop(23.0f, 25.0f, 5.0f); 
+		ChangeState(Player::STATE::PLAY); return;
+	}
+	mTransform.Update();
+	// エフェクトの位置を同期 
+	SyncWarpOrbitPos();
+}
+
+Capsule* Player::GetCapsule(void)
+{
+	return mCapsule;
+}
+
+bool Player::IsPlay(void)
+{
+	return false;
+}
+
+bool Player::IsWarpMove(void)
+{
+	return false;
+}
+
+void Player::StartWarp(float time, Quaternion goalRot, VECTOR goalPos)
+{
+	mTimeWarp = time;
+	mStepWarp = time;
+	mWarpQua = goalRot;
+	mWarpReservePos = goalPos;
+	mPreWarpName = mGravityManager->GetActivePlanet()->GetName();
+	ChangeState(STATE::WARP_RESERVE);
+
+
+}
+
 void Player::ChangeState(STATE state)
 {
 
@@ -438,8 +509,19 @@ void Player::ChangeState(STATE state)
 	case Player::STATE::PLAY:
 		break;
 	case Player::STATE::WARP_RESERVE:
+		mJumpPow = AsoUtility::VECTOR_ZERO;
+		// ワープ準備開始時のプレイヤー情報 
+		mReserveStartQua = mTransform.quaRot; 
+		mReserveStartPos = mTransform.pos; 
+		mAnimationController->Play((int)Player::ANIM_TYPE::WARP_PAUSE); 
 		break;
 	case Player::STATE::WARP_MOVE:
+		// 正面を向いているはずなのでリセット 
+		mPlayerRotY = Quaternion(); 
+		mGoalQuaRotY = Quaternion();
+		mAnimationController->Play((int)Player::ANIM_TYPE::FLY);
+		// エフェクト再生 
+		EffectWarpOrbit(); 
 		break;
 	case Player::STATE::DEAD:
 		break;
@@ -599,4 +681,36 @@ void Player::EffectFootSmoke(void)
 
 	mStepFootSmoke++;
 
+}
+
+void Player::EffectWarpOrbit(void)
+{
+	// エフェクト再生 
+	mHandleWarpOrbitL = PlayEffekseer3DEffect(mEffectWarpOrbit); 
+	mHandleWarpOrbitR = PlayEffekseer3DEffect(mEffectWarpOrbit);
+// 大きさ 
+	SetScalePlayingEffekseer3DEffect(mHandleWarpOrbitL, 10.0f, 10.0f, 10.0f);
+	SetScalePlayingEffekseer3DEffect(mHandleWarpOrbitR, 10.0f, 10.0f, 10.0f);
+// エフェクトの位置 
+	SyncWarpOrbitPos();
+// エフェクトの回転 
+	VECTOR euler = mTransform.quaRot.ToEuler(); SetRotationPlayingEffekseer3DEffect( mHandleWarpOrbitL, euler.x, euler.y, euler.z);
+	SetRotationPlayingEffekseer3DEffect( mHandleWarpOrbitR, euler.x, euler.y, euler.z);
+
+}
+
+void Player::SyncWarpOrbitPos(void)
+{
+	VECTOR pos;
+	pos = MV1GetFramePosition(mTransform.modelId, mFrameLeftHand); 
+	SetPosPlayingEffekseer3DEffect(mHandleWarpOrbitL, pos.x, pos.y, pos.z);
+	pos = MV1GetFramePosition(mTransform.modelId, mFrameRightHand); 
+	SetPosPlayingEffekseer3DEffect(mHandleWarpOrbitR, pos.x, pos.y, pos.z);
+
+}
+
+void Player::StopOrbitEffect(void)
+{
+	StopEffekseer3DEffect(mHandleWarpOrbitL);
+	StopEffekseer3DEffect(mHandleWarpOrbitR);
 }

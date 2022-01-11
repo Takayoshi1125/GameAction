@@ -1,5 +1,9 @@
-﻿  Planet.cpp
+﻿  Player.cpp
+D:\Users\1916003\Desktop\GameAr\GameAction\3DAction_BASE\Src\Object\Player.cpp(198,27): warning C4244: '=': 'float' から 'BYTE' への変換です。データが失われる可能性があります。
+D:\Users\1916003\Desktop\GameAr\GameAction\3DAction_BASE\Src\Object\Player.cpp(201,27): warning C4244: '=': 'float' から 'BYTE' への変換です。データが失われる可能性があります。
+D:\Users\1916003\Desktop\GameAr\GameAction\3DAction_BASE\Src\Object\Player.cpp(204,27): warning C4244: '=': 'float' から 'BYTE' への変換です。データが失われる可能性があります。
   Stage.cpp
   WarpStar.cpp
+  GameScene.cpp
   コードを生成中...
   BaseProject.vcxproj -> D:\Users\1916003\Desktop\GameAr\GameAction\3DAction_BASE\x64\Debug\BaseProject.exe

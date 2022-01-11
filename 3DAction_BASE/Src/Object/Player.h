@@ -1,6 +1,7 @@
 #pragma once
 #include <DxLib.h>
 #include "Common/Transform.h"
+#include"Stage.h"
 class SceneManager;
 class ResourceManager;
 class GravityManager;
@@ -76,6 +77,17 @@ public:
 	void AddCollider(Collider* collider);
 	void ClearCollider(void);
 
+	// 状態別更新ステップ 
+	void UpdateWarpReserve(void); 
+	void UpdateWarpMove(void);
+	Capsule* GetCapsule(void);
+	// 状態判定 
+	bool IsPlay(void); bool IsWarpMove(void);
+	// ワープ開始 
+	void StartWarp(float time, Quaternion goalRot, VECTOR goalPos);
+
+
+
 private:
 
 	SceneManager* mSceneManager;
@@ -130,6 +142,26 @@ private:
 	//フレームごとの移動量
 	VECTOR mMoveDiff;
 
+	// ワープ用
+	float mTimeWarp; 
+	float mStepWarp;
+// ワープ準備完了時の情報 
+	Quaternion mWarpQua;
+	VECTOR mWarpReservePos;
+// ワープ準備開始時のプレイヤー情報 
+	Quaternion mReserveStartQua; 
+	VECTOR mReserveStartPos;
+// ワープ前の惑星名 
+	Stage::NAME mPreWarpName;
+// 軌跡エフェクト 
+	int mEffectWarpOrbit; 
+	int mHandleWarpOrbitL; 
+	int mHandleWarpOrbitR;
+// モデルパーツのフレーム番号 
+	int mFrameLeftHand; 
+	int mFrameRightHand;
+
+
 	// 状態遷移
 	void ChangeState(STATE state);
 
@@ -143,6 +175,12 @@ private:
 	bool IsEndLanding(void);
 
 	void EffectFootSmoke(void);
+
+	// 軌跡エフェクト 
+	void EffectWarpOrbit(void); 
+	void SyncWarpOrbitPos(void); 
+	void StopOrbitEffect(void);
+
 
 };
 
