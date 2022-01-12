@@ -85,11 +85,23 @@ void WarpStar::UpdateIdle(void)
 
 void WarpStar::UpdateReserve(void)
 {
-	//RotateZ
+	RotateZ(SPEED_ROT_RESERVE);
+
+	PlayEffectRotParticle();
+
+	if (mPlayer->IsWarpMove())
+	{
+		ChangeState(STATE::MOVE);
+	}
+
 }
 
 void WarpStar::UpdateMove(void)
 {
+	if (mPlayer->IsPlay())
+	{
+		ChangeState(STATE::IDLE);
+	}
 }
 
 void WarpStar::Draw(void)

@@ -49,6 +49,15 @@ void Stage::Update(void)
 	for (auto& s : mPlanets)
 	{
 		s.second->Update();
+
+
+		//惑星の重力圏内に入ったら
+		if (s.second->InRangeGravity(mPlayer->GetTransform()->pos))
+		{
+			//次のステージへ遷移
+			ChangeStage(s.second->GetName());
+		}
+
 	}
 
 }

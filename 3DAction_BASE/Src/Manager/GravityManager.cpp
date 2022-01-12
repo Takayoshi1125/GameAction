@@ -58,6 +58,24 @@ void GravityManager::UpdateChangeStage(void)
 
 void GravityManager::Calculate(void)
 {
+	//d—Í•ûŒü‚ðŒvŽZ
+	mDirGravity = CalcDirGravity();
+	//d—Í‚Ì”½‘Î•ûŒü
+	mDirUpGravity=VScale(mDirGravity, { -1.0f });
+
+	//2‚Â‚ÌGravity‚Ì‰ñ“]—Ê
+	VECTOR up = mTransform.GetUp();
+	Quaternion toRot = Quaternion::FromToRotation(up, mDirUpGravity);
+
+	//“ž’B‚µ‚½‚¢•ûŒü‚ÉŒü‚©‚¹‚é
+	//mTransform.quaRot = toRot.Mult(mTransform.quaRot);
+
+	toRot = toRot.Mult(mTransform.quaRot);
+
+	mTransform.quaRot = Quaternion::Slerp(
+		mTransform.quaRot, toRot, mSlerpPow
+	);
+
 }
 
 Planet* GravityManager::GetActivePlanet(void)
@@ -153,6 +171,11 @@ VECTOR GravityManager::CalcDirGravity(void)
 		ret = AsoUtility::DIR_D;
 		break;
 	case Planet::TYPE::SPHERE:
+	{
+		VECTOR planetPos = mActivePlanet->GetTransform()->pos;
+		VECTOR playerPos = mPlayer->GetTransform()->pos;
+		ret = VNorm(VSub(planetPos, playerPos));
+	}
 		break;
 	case Planet::TYPE::TRANS_ROT:
 		break;

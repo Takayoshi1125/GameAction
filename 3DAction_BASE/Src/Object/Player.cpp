@@ -47,6 +47,7 @@ void Player::Init(void)
 	
 	//ÉÇÉfÉãÉtÉåÅ[ÉÄ
 	mFrameLeftHand = MV1SearchFrame(mTransform.modelId, "mixamorig.LeftHand");
+	mFrameRightHand = MV1SearchFrame(mTransform.modelId, "mixamorig.RightHand");
 
 
 	mIsJump = false;
@@ -478,12 +479,12 @@ Capsule* Player::GetCapsule(void)
 
 bool Player::IsPlay(void)
 {
-	return false;
+	return mState==STATE::PLAY;
 }
 
 bool Player::IsWarpMove(void)
 {
-	return false;
+	return mState==STATE::WARP_MOVE;
 }
 
 void Player::StartWarp(float time, Quaternion goalRot, VECTOR goalPos)
@@ -704,6 +705,7 @@ void Player::SyncWarpOrbitPos(void)
 	VECTOR pos;
 	pos = MV1GetFramePosition(mTransform.modelId, mFrameLeftHand); 
 	SetPosPlayingEffekseer3DEffect(mHandleWarpOrbitL, pos.x, pos.y, pos.z);
+
 	pos = MV1GetFramePosition(mTransform.modelId, mFrameRightHand); 
 	SetPosPlayingEffekseer3DEffect(mHandleWarpOrbitR, pos.x, pos.y, pos.z);
 

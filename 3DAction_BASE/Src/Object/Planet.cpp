@@ -85,6 +85,21 @@ Transform* Planet::GetTransform(void)
 
 bool Planet::InRangeGravity(VECTOR pos)
 {
+
+	//‹…‘Ì‚Æ“_
+	VECTOR vPos = pos;
+	VECTOR cPos = mTransform.pos;
+	
+
+	//
+	VECTOR diff = VSub(cPos, vPos);
+	float dis = AsoUtility::SqrMagnitude(diff);
+	if (dis < mGravityRadius * mGravityRadius)
+	{
+		return true;
+	}
+
+
 	return false;
 }
 
