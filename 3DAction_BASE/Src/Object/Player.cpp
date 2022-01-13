@@ -114,7 +114,11 @@ void Player::Update(void)
 void Player::UpdatePlay(void)
 {
 	ProcessMove();
+
 	ProcessJamp();
+
+	//傾斜計算
+	CalcSlope();
 
 	CalcGravityPow();
 	
@@ -262,6 +266,9 @@ void Player::DrawDebug(void)
 	//カプセルコライダ
 	mCapsule->Draw();
 
+	DrawFormatString(20, 80, black, "傾斜角 ： (%0.2f)",
+		mSlopeAngleDeg
+	);
 }
 
 void Player::Release(void)
@@ -404,9 +411,49 @@ void Player::Rotate(void)
 
 }
 
+void Player::CalcSlope()
+{
+	//重力方向の計算
+	VECTOR gravityUp = mGravityManager->GetDirUpGravity();
+
+	//重力の反対方向から、衝突した地面の法線方向に向けた回転量を所得
+	Quaternion up2GNorQua =
+		Quaternion::FromToRotation(gravityUp, mHitNormal);
+
+	//取得した回転量の軸と角度を取得する
+	float angle;
+	float* anglePtr = &angle;
+	VECTOR axis;
+	up2GNorQua.ToAngleAxis(anglePtr, &axis);
+
+	//90度足して、傾斜ベクトルの回転を取得する
+	Quaternion slopeQ = Quaternion::AngleAxis(
+		angle + AsoUtility::Deg2RadD(90.0), axis);
+
+	//地面の傾斜線
+	mSlopeDir = slopeQ.PosAxis(gravityUp);
+
+	//傾斜の角度
+	mSlopeAngleDeg = AsoUtility::AngleDeg(gravityUp,mSlopeDir);
+
+
+	//傾斜によるキャラクターの移動
+	if (AsoUtility::SqrMagnitude(mJumpPow) == 0.0f)
+	{
+		float CHECK_ANGLE = 120.0f;
+		if (mSlopeAngleDeg >= CHECK_ANGLE)
+		{
+			float diff = abs(mSlopeAngleDeg - CHECK_ANGLE);
+			mSlopePow = VScale(mSlopeDir, diff / 3.0f);
+			mMovePow = VAdd(mMovePow, mSlopePow);
+		}
+	}
+
+}
+
 void Player::CalcGravityPow(void)
 {
-	VECTOR dirGravity = mGravityManager->GetDirUpGravity();
+	VECTOR dirGravity = mGravityManager->GetDirGravity();
 	//
 	float gravityPow = mGravityManager->GetPower();
 
@@ -627,7 +674,11 @@ void Player::CollisionGravity(void)
 			MV1CollCheck_Line(
 				c->mModelId, -1, mGravHitUp, mGravHitDown);
 		if (hit.HitFlag > 0)
-		{// 衝突地点から、少し上に移動
+		{
+			mHitNormal = hit.Normal;
+			mHitPos = hit.HitPosition;
+			
+			// 衝突地点から、少し上に移動
 			mMovedPos =
 				VAdd(hit.HitPosition,
 					VScale(dirUpGravity, 2.0f));

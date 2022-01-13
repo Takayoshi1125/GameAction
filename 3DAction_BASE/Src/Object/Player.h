@@ -68,6 +68,8 @@ public:
 	void SetGoalRotate(double rad);
 	void Rotate(void);
 
+	void CalcSlope();
+
 	//d—Í‚Ì‹­‚³ŒvZ
 	void CalcGravityPow(void);
 
@@ -161,6 +163,12 @@ private:
 	int mFrameLeftHand; 
 	int mFrameRightHand;
 
+	//ŒXÎ‚Ì•ûŒü
+	VECTOR mSlopeDir;
+	float mSlopeAngleDeg;
+	VECTOR mSlopePow;
+	VECTOR mHitNormal;
+	VECTOR mHitPos;
 
 	// ó‘Ô‘JˆÚ
 	void ChangeState(STATE state);
