@@ -178,10 +178,20 @@ VECTOR GravityManager::CalcDirGravity(void)
 	}
 		break;
 	case Planet::TYPE::TRANS_ROT:
+		//ステージモデルの下方向をretに代入する
+	{
+		ret = mActivePlanet->GetTransform()->GetDown();
+	}
 		break;
 	case Planet::TYPE::TRANS_CAMERA_FIXED:
+	{
+		ret = mActivePlanet->GetTransform()->GetDown();
+	}
 		break;
 	case Planet::TYPE::ROAD:
+	{
+		//地面の真下方向
+	}
 		break;
 	}
 
